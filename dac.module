@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function dac_menu() {
+  $items = array();
+
+  $items['admin/config/content/dac'] = array(
+    'title' => 'Data and Chart',
+    'description' => 'Configure Data and Chart components.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dac_admin_config'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'dac.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+function dac_field_info() {
+  $fields = array();
+  
+  $fields['dac_chart_type'] = array(
+  	'label' => t('Chart Type'),
+    'description' => t('Data and Chart: choose the specfic chart type of a chart system.'),
+    'default widget' => 'options_select',
+    'default formatter' => 'dac_none',
+  );
+  
+  $fields['dac_chart_options'] = array(
+    'label' => t('Chart Options'),
+    'description' => t('Data and Chart: Configure a chart of a chart system.'),
+    'default widget' => 'dac_chart_options_pair',
+    'default formatter' => 'dac_none',
+  );
+  
+  return $fields;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function dac_field_widget_info() {
+  $widgets = array();
+  
+  $widgets['dac_chart_options_pair'] = array(
+    'label' => t('Parameter/Value Pair'),
+    'description' => t('Data and Chart: chart options pair.'),
+    'field types' => array('dac_chart_options'),
+    'behaviors' => array(
+      'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+      'default value' => FIELD_BEHAVIOR_NONE,
+    ),
+  );
+  
+  return $widgets;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function dac_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function dac_field_formatter_info() {
+  $formatters = array();
+  
+  $formatters['dac_none'] = array(
+    'label' => t('None'),
+    'field types' => array('dac_chart_type', 'dac_chart_options'),
+  );
+  
+  return $formatters;
+}

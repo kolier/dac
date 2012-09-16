@@ -1,0 +1,7 @@
+name = Data and Chart
+description = Data and Chart system.
+package = Data and Chart
+core = 7.x
+
+dependencies[] = eck
+dependencies[] = options

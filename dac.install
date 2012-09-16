@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Install file of Data and Chart.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function dac_field_schema($field) {
+  $schemas = array();
+  
+  $schemas['dac_chart_type'] = array(
+    'columns' => array(
+      'value' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'value' => array('value'),
+    ),
+  );
+  
+  $schemas['dac_chart_options'] = array(
+    'columns' => array(
+      'value' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+    ),
+  );
+  
+  return $schemas[$field['type']];
+}

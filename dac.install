@@ -30,6 +30,7 @@ function dac_field_schema($field) {
         'type' => 'blob',
         'size' => 'big',
         'not null' => FALSE,
+        'serialize' => TRUE,
       ),
     ),
   );

@@ -15,28 +15,105 @@ function dac_menu() {
     'file' => 'dac.admin.inc',
     'type' => MENU_NORMAL_ITEM,
   );
+  
+  $items['data/sheet/%/json'] = array(
+    'title' => 'Data json (Sheet)',
+    'description' => 'Return the json format data of the sheet.',
+    'page callback' => 'dac_data_json',
+    'page arguments' => array(1, 2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
 }
 
+/**
+ * Implements hook_init().
+ */
+function dac_init() {
+  drupal_add_js('https://www.google.com/jsapi', 'external');
+  
+  $settings = array();
+  $settings['test']['a'] = 'a';
+  drupal_add_js($settings, array('type' => 'setting'));
+  
+  $settings['test']['b'] = 'b';
+  drupal_add_js($settings, array('type' => 'setting'));
+}
+
+/**
+ * @defgroup DAC Field.
+ * @{
+ */
+
+/**
+ * Implements hook_field_info().
+ */
 function dac_field_info() {
   $fields = array();
   
   $fields['dac_chart_type'] = array(
   	'label' => t('Chart Type'),
     'description' => t('Data and Chart: choose the specfic chart type of a chart system.'),
-    'default widget' => 'options_select',
-    'default formatter' => 'dac_none',
+    'default_widget' => 'options_select',
+    'default_formatter' => 'dac_none',
   );
   
   $fields['dac_chart_options'] = array(
     'label' => t('Chart Options'),
     'description' => t('Data and Chart: Configure a chart of a chart system.'),
-    'default widget' => 'dac_chart_options_pair',
-    'default formatter' => 'dac_none',
+    'default_widget' => 'dac_chart_options_pair',
+    'default_formatter' => 'dac_none',
   );
   
   return $fields;
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function dac_field_widget_info_alter(&$info) {
+  $info['options_select']['field types'][] = 'dac_chart_type';
+}
+
+/**
+ * Implements hook_options_list().
+ */
+function dac_options_list($field, $instance, $entity_type, $entity) {
+  // @todo Support different chart system. Use plugins system.
+  $options = array(
+    'PieChart' => t('Pie Chart'),
+    'LineChart' => t('Line Chart'),
+    'BarChart' => t('Bar Chart'),
+    'ColumnChart' => t('Column Chart'),
+    'Table' => t('Table'),
+    'CandlestickChart' => t('Candlestick Chart'),
+    'Map' => t('Map'),
+    'OrgChart' => t('Organization Chart'),
+  );
+  
+  return $options;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function dac_field_is_empty($item, $field) {
+  switch ($field['type']) {
+  	case 'dac_chart_type':
+  	  if (empty($item['value']) && (string) $item['value'] !== '0') {
+  	    return TRUE;
+  	  }
+  	  break;
+  	case 'dac_chart_options':
+  	  if (empty($item['value'])) {
+  	    return TRUE;
+  	  }
+  	  break;
+  }
+  
+  return FALSE;
 }
 
 /**
@@ -45,14 +122,10 @@ function dac_field_info() {
 function dac_field_widget_info() {
   $widgets = array();
   
-  $widgets['dac_chart_options_pair'] = array(
-    'label' => t('Parameter/Value Pair'),
+  $widgets['dac_chart_options_textarea'] = array(
+    'label' => t('Parameter/Value Textarea'),
     'description' => t('Data and Chart: chart options pair.'),
     'field types' => array('dac_chart_options'),
-    'behaviors' => array(
-      'multiple values' => FIELD_BEHAVIOR_CUSTOM,
-      'default value' => FIELD_BEHAVIOR_NONE,
-    ),
   );
   
   return $widgets;
@@ -62,7 +135,43 @@ function dac_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function dac_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+	if ($field['type'] == 'dac_chart_options') {
+	  $default_value = '';
+	  if (!empty($items[$delta]['value'])) {
+		  $options_pair = unserialize($items[$delta]['value']);
+		  $options = array();
+		  foreach ($options_pair as $key => $value) {
+		    $options[] = $key . ' = ' . $value;
+		  }
+		  $default_value = implode("\n", $options);
+	  }
+	  
+	  $main_widget = $element + array(
+	    '#type' => 'textarea',
+	    '#rows' => 10,
+	    '#description' => t('title, width, height, is3D.'),
+	    '#default_value' => $default_value,
+	  );
+	  
+	  $element['value'] = $main_widget;
+	}
   
+  return $element;
+}
+
+function dac_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  
+  if ($field['type'] == 'dac_chart_options' && !empty($items[0]['value'])) {
+    // Each line as a pair of parameter and value.
+	  $lines = array_filter(array_map('trim', explode("\n", $items[0]['value'])));
+	  $options = array();	  
+	  foreach ($lines as $line) {
+	    if (preg_match('/(.*)\=(.*)/', $line, $matches)) {
+	      $options[trim($matches[1])] = trim($matches[2]);
+	    }
+	  }	  
+	  $items[0]['value'] = serialize($options);
+  }
 }
 
 /**
@@ -77,4 +186,151 @@ function dac_field_formatter_info() {
   );
   
   return $formatters;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function dac_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+	if ($form['#field']['type'] == 'dac_chart_options') {
+		$form['field']['cardinality']['#value'] = 1;
+		$form['field']['cardinality']['#disabled'] = TRUE;
+		$form['field']['cardinality']['#description'] = t('<b>For this field type only 1 can be set.</b>');
+	}
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+/*
+function dac_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  
+  switch ($display['type']) {
+  	case 'dac_'
+  }
+}
+*/
+
+/**
+ * @} End of "defgroup DAC Field".
+ */
+
+/**
+ * Implements hook_entity_view().
+ *
+ * Provide chart preview on chart entity 'full' view_mode.
+ */
+function dac_entity_view($entity, $type, $view_mode, $langcode) {
+  if ($type == 'chart'
+    && $entity->bundle() == 'gct'
+    && $view_mode == 'full'
+  ) {
+		$settings = dac_chart_settings($entity, $langcode);
+    // Draw chart using $settings.
+    $chart_info = dac_chart_draw($type . '_' . $entity->identifier(), $settings);
+    $entity->content['chart_preview'] = array(
+      '#markup' => $chart_info['markup'],
+      '#weight' => 10,
+    );
+  }
+}
+
+/**
+ * Return the json data.
+ * 
+ * @todo Cache.
+ * 
+ * @param string $type Bundle of the data entity.
+ * @param int $id
+ */
+function dac_data_json($type, $id) {
+  $entity = entity_load_single('data', $id);
+  $data = array();
+  
+  if ($type == 'sheet') {
+    $sheet = $entity->field_data_sheet[LANGUAGE_NONE][0]['value'];
+    require_once(drupal_get_path('module', 'sheetnode') . '/socialcalc.inc');
+    $sc = socialcalc_parse($sheet);
+    foreach($sc['sheet']['cells'] as $pos => $cell) {
+      // pos[0] as column, pos[1] as row.
+      switch ($cell['valuetype']) {
+        // Text.
+      	case 't':
+      	// Number.
+      	case 'n':
+      	  $data[$cell['pos'][1]-1][$cell['pos'][0]-1] = $cell['datavalue'];
+      	  break;
+      	// Date.
+      	case 'nd':
+      	  $data[$cell['pos'][1]-1][$cell['pos'][0]-1] = $cell['formula'];
+      	  break;
+      }
+    }
+  }
+  
+  drupal_json_output($data);
+}
+
+/**
+ * Parse advanced chart options.
+ *
+ * @param array $chart_options
+ */
+function dac_chart_options_parse($chart_options) {
+
+}
+
+/**
+ * Prepare the chart settings.
+ */
+function dac_chart_settings($entity, $langcode) {
+  global $base_url;
+  $data = entity_load_single('data', $entity->field_chart_data[LANGUAGE_NONE][0]['target_id']);
+  $data_uri = $data->uri();
+  $data_url = $base_url . '/' . $data_uri['path'] . '/json';
+  // Prepare $settings.
+  // json_source, json_table.
+  $settings = array(
+    'data' => array(
+      'type' => 'json_source',
+      //'table' => drupal_http_request($data_url)->data,
+      'url' => $data_url,
+    ),
+    'chart' => array(
+      'driver' => 'gct',
+      'chartType' => $entity->field_chart_type[LANGUAGE_NONE][0]['value'],
+      'options' => array(),
+    ),
+  );
+  if (!empty($entity->field_chart_options)) {
+    $settings['chart']['options'] = unserialize($entity->field_chart_options[LANGUAGE_NONE][0]['value']);
+    if (!isset($settings['chart']['options']['title'])) {
+      $settings['chart']['options']['title'] = $entity->title;
+    }
+  }
+  
+  return $settings;
+}
+
+/**
+ * Draw the chart, return the HTML markup.
+ */
+function dac_chart_draw($id, $settings) {
+  static $settings_dac = array();
+  if (!isset($settings['containerId'])) {
+    $settings['containerId'] = strtolower(str_replace(" ", "-", $id));
+  }
+  $settings_dac['dac'][$id] = $settings;
+
+  drupal_add_js(drupal_get_path('module', 'dac') . '/dac.js');
+  drupal_add_js($settings_dac, array('type' => 'setting'));
+  
+  $ret = array(
+    'id' =>  $id,
+    'weight' => isset($settings['weight']) ? $settings['weight'] : 0,
+    'markup' =>  '<div id="' . $settings['containerId'] . '"></div>',
+  );
+  
+  return $ret;
 }

@@ -98,6 +98,116 @@ function dac_field_default_fields() {
     ),
   );
 
+  // Exported field: 'chart-gct-field_chart_options'.
+  $fields['chart-gct-field_chart_options'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_chart_options',
+      'foreign keys' => array(),
+      'indexes' => array(),
+      'locked' => '0',
+      'module' => 'dac',
+      'settings' => array(),
+      'translatable' => '0',
+      'type' => 'dac_chart_options',
+    ),
+    'field_instance' => array(
+      'bundle' => 'gct',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'Options of Google Chart Tools.',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'dac',
+          'settings' => array(),
+          'type' => 'dac_none',
+          'weight' => 2,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'chart',
+      'field_name' => 'field_chart_options',
+      'label' => 'Chart Options',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 0,
+        'module' => 'dac',
+        'settings' => array(),
+        'type' => 'dac_chart_options_textarea',
+        'weight' => '4',
+      ),
+    ),
+  );
+
+  // Exported field: 'chart-gct-field_chart_type'.
+  $fields['chart-gct-field_chart_type'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_chart_type',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'dac',
+      'settings' => array(),
+      'translatable' => '0',
+      'type' => 'dac_chart_type',
+    ),
+    'field_instance' => array(
+      'bundle' => 'gct',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'Select the chartType of Google Chart Tools.',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'dac',
+          'settings' => array(),
+          'type' => 'dac_none',
+          'weight' => 1,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'chart',
+      'field_name' => 'field_chart_type',
+      'label' => 'Chart Type',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_select',
+        'weight' => '3',
+      ),
+    ),
+  );
+
   // Exported field: 'data-sheet-field_data_sheet'.
   $fields['data-sheet-field_data_sheet'] = array(
     'field_config' => array(
@@ -158,7 +268,11 @@ function dac_field_default_fields() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Chart Data');
+  t('Chart Options');
+  t('Chart Type');
   t('Default data of this chart.');
+  t('Options of Google Chart Tools.');
+  t('Select the chartType of Google Chart Tools.');
   t('Sheet');
   t('Spreadsheet for data input.');
 

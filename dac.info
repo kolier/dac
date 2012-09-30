@@ -1,7 +1,18 @@
 name = Data and Chart
 description = Data and Chart system.
-package = Data and Chart
 core = 7.x
-
+package = Data and Chart
+version = 7.x-1.0-dev
+project = dac
 dependencies[] = eck
-dependencies[] = options
+dependencies[] = eck_extras
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = sheetnode
+features[eck_bundle][] = chart_gct
+features[eck_bundle][] = data_sheet
+features[eck_entity_type][] = chart
+features[eck_entity_type][] = data
+features[features_api][] = api:1
+features[field][] = chart-gct-field_chart_data
+features[field][] = data-sheet-field_data_sheet

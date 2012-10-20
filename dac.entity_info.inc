@@ -1,8 +1,106 @@
 <?php
+
 /**
- * @file
- * dac.features.field.inc
+ * Implements hook_eck_bundle_info().
  */
+function dac_eck_bundle_info() {
+  $items = array(
+    'chart_gct' => array(
+      'machine_name' => 'chart_gct',
+      'entity_type' => 'chart',
+      'name' => 'gct',
+      'label' => 'Google Chart Tools',
+    ),
+    'data_sheet' => array(
+      'machine_name' => 'data_sheet',
+      'entity_type' => 'data',
+      'name' => 'sheet',
+      'label' => 'Sheet',
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_eck_entity_type_info().
+ */
+function dac_eck_entity_type_info() {
+  $items = array(
+    'chart' => array(
+      'name' => 'chart',
+      'label' => 'Chart',
+      'properties' => array(
+        'title' => array(
+          'label' => 'Title',
+          'type' => 'text',
+          'behavior' => 'title',
+        ),
+        'uid' => array(
+          'label' => 'Author',
+          'type' => 'integer',
+          'behavior' => 'author',
+        ),
+        'created' => array(
+          'label' => 'Created',
+          'type' => 'integer',
+          'behavior' => 'created',
+        ),
+        'changed' => array(
+          'label' => 'Changed',
+          'type' => 'integer',
+          'behavior' => 'changed',
+        ),
+        'published' => array(
+          'label' => 'Published',
+          'type' => 'integer',
+          'behavior' => 'published',
+        ),
+        'machine_name' => array(
+          'label' => 'Machine Name',
+          'type' => 'text',
+          'behavior' => 'machine_name',
+        ),
+      ),
+    ),
+    'data' => array(
+      'name' => 'data',
+      'label' => 'Data',
+      'properties' => array(
+        'title' => array(
+          'label' => 'Title',
+          'type' => 'text',
+          'behavior' => 'title',
+        ),
+        'uid' => array(
+          'label' => 'Author',
+          'type' => 'integer',
+          'behavior' => 'author',
+        ),
+        'created' => array(
+          'label' => 'Created',
+          'type' => 'integer',
+          'behavior' => 'created',
+        ),
+        'changed' => array(
+          'label' => 'Changed',
+          'type' => 'integer',
+          'behavior' => 'changed',
+        ),
+        'published' => array(
+          'label' => 'Published',
+          'type' => 'integer',
+          'behavior' => 'published',
+        ),
+        'machine_name' => array(
+          'label' => 'Machine Name',
+          'type' => 'text',
+          'behavior' => 'machine_name',
+        ),
+      ),
+    ),
+  );
+  return $items;
+}
 
 /**
  * Implements hook_field_default_fields().
@@ -56,45 +154,45 @@ function dac_field_default_fields() {
       'type' => 'entityreference',
     ),
     'field_instance' => array(
-      'bundle' => 'gct',
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => 'Default data of this chart.',
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'module' => 'entityreference',
-          'settings' => array(
-            'link' => FALSE,
-          ),
-          'type' => 'entityreference_label',
-          'weight' => 0,
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'chart',
-      'field_name' => 'field_chart_data',
-      'label' => 'Chart Data',
-      'required' => 0,
-      'settings' => array(
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'entityreference',
-        'settings' => array(
-          'match_operator' => 'CONTAINS',
-          'path' => '',
-          'size' => '60',
-        ),
-        'type' => 'entityreference_autocomplete',
-        'weight' => '2',
-      ),
+    'bundle' => 'gct',
+    'default_value' => NULL,
+    'deleted' => '0',
+    'description' => 'Default data of this chart.',
+    'display' => array(
+    'default' => array(
+    'label' => 'above',
+    'module' => 'entityreference',
+    'settings' => array(
+    'link' => FALSE,
+    ),
+    'type' => 'entityreference_label',
+    'weight' => 0,
+    ),
+    'teaser' => array(
+    'label' => 'above',
+    'settings' => array(),
+    'type' => 'hidden',
+    'weight' => 0,
+    ),
+    ),
+    'entity_type' => 'chart',
+    'field_name' => 'field_chart_data',
+    'label' => 'Chart Data',
+    'required' => 0,
+    'settings' => array(
+    'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+    'active' => 1,
+    'module' => 'entityreference',
+    'settings' => array(
+    'match_operator' => 'CONTAINS',
+    'path' => '',
+    'size' => '60',
+    ),
+    'type' => 'entityreference_autocomplete',
+    'weight' => '2',
+    ),
     ),
   );
 
@@ -139,14 +237,14 @@ function dac_field_default_fields() {
       'label' => 'Chart Options',
       'required' => 0,
       'settings' => array(
-        'user_register_form' => FALSE,
+      'user_register_form' => FALSE,
       ),
       'widget' => array(
-        'active' => 0,
-        'module' => 'dac',
-        'settings' => array(),
-        'type' => 'dac_chart_options_textarea',
-        'weight' => '4',
+      'active' => 0,
+      'module' => 'dac',
+      'settings' => array(),
+      'type' => 'dac_chart_options_textarea',
+      'weight' => '4',
       ),
     ),
   );
@@ -196,14 +294,14 @@ function dac_field_default_fields() {
       'label' => 'Chart Type',
       'required' => 0,
       'settings' => array(
-        'user_register_form' => FALSE,
+      'user_register_form' => FALSE,
       ),
       'widget' => array(
-        'active' => 1,
-        'module' => 'options',
-        'settings' => array(),
-        'type' => 'options_select',
-        'weight' => '3',
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_select',
+      'weight' => '3',
       ),
     ),
   );
@@ -253,14 +351,14 @@ function dac_field_default_fields() {
       'label' => 'Sheet',
       'required' => 0,
       'settings' => array(
-        'user_register_form' => FALSE,
+      'user_register_form' => FALSE,
       ),
       'widget' => array(
-        'active' => 0,
-        'module' => 'sheetnode',
-        'settings' => array(),
-        'type' => 'sheetfield_spreadsheet',
-        'weight' => '2',
+      'active' => 0,
+      'module' => 'sheetnode',
+      'settings' => array(),
+      'type' => 'sheetfield_spreadsheet',
+      'weight' => '2',
       ),
     ),
   );

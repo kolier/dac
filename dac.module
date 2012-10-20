@@ -39,13 +39,6 @@ function dac_menu() {
  */
 function dac_init() {
   drupal_add_js('https://www.google.com/jsapi', 'external');
-  
-  $settings = array();
-  $settings['test']['a'] = 'a';
-  drupal_add_js($settings, array('type' => 'setting'));
-  
-  $settings['test']['b'] = 'b';
-  drupal_add_js($settings, array('type' => 'setting'));
 }
 
 /**
@@ -339,4 +332,149 @@ function dac_chart_draw($id, $settings) {
   );
   
   return $ret;
+}
+
+/**
+ * Build the data/chart entity for dac.
+ * @param string $entity_machine_name
+ * @param string $bundle_machine_name
+ */
+function dac_entity_build($entity_machine_name, $bundle_machine_name) {
+  dac_eck_entity_build($entity_machine_name);
+  dac_eck_bundle_build($entity_machine_name, $bundle_machine_name);
+  dac_fields_build($entity_machine_name, $bundle_machine_name);
+}
+
+/**
+ * Add the eck entity.
+ * @param string $entity_machine_name
+ */
+function dac_eck_entity_build($entity_machine_name) {
+  module_load_include('inc', 'dac', 'dac.entity_info');
+  $entity_info = array();
+  foreach (dac_eck_entity_type_info() as $entity_name => $entity_type_info) {
+    if ($entity_name == $entity_machine_name)
+    {
+      $entity_info = $entity_type_info;
+    }
+  }
+  
+  if (count($entity_info) == 0) {
+    return;
+  }
+  
+  // Try load the existing entity type, if one exists.
+  $entity_type = EntityType::loadByName($entity_machine_name);
+  // Only touch it if not exist.
+  if (empty($entity_type->id)) {
+    $entity_type = new EntityType();
+    $entity_type->name = $entity_info['name'];
+    $entity_type->label = $entity_info['label'];
+    foreach ($entity_info['properties'] as $property_key => $property) {
+      $entity_type->addProperty($property_key, $property['label'], $property['type'], $property['behavior']);
+    }
+    $entity_type->save();
+  }
+  
+  drupal_get_schema(NULL, TRUE);
+  entity_info_cache_clear();
+  variable_set('menu_rebuild_needed', TRUE);
+}
+
+/**
+ * Add an eck bundle to an eck entity.
+ * @param string $entity_machine_name
+ * @param string $bundle_machine_name
+ */
+function dac_eck_bundle_build($entity_machine_name, $bundle_machine_name) {
+  module_load_include('inc', 'dac', 'dac.entity_info');
+  $bundle_info = array();
+  foreach (dac_eck_bundle_info() as $bundle_name => $bundle_info_tmp) {
+    if (
+      $bundle_info_tmp['entity_type'] == $entity_machine_name
+      && $bundle_info_tmp['name'] == $bundle_machine_name
+    ) {
+      $bundle_info = $bundle_info_tmp; 
+    }
+  }
+  
+  if (count($bundle_info) == 0) {
+    return;
+  }
+  
+  $bundle = Bundle::loadByMachineName($bundle_machine_name);
+  if (empty($bundle->id)) {
+    $bundle = new Bundle();
+  }
+  foreach($bundle_info as $key => $value){
+    $bundle->{$key} = $value;
+  }
+  $bundle->save();
+  
+  drupal_get_schema(NULL, TRUE);
+  entity_info_cache_clear();
+  variable_set('menu_rebuild_needed', TRUE);
+}
+
+/**
+ * Build the fields of the bundle of entity.
+ * @param string $entity_machine_name
+ * @param string $bundle_machine_name
+ * @param array $fields_name
+ */
+function dac_fields_build($entity_machine_name, $bundle_machine_name, $fields_name = array()) {
+  module_load_include('inc', 'dac', 'dac.entity_info');
+  $fields = array();
+  foreach (dac_field_default_fields() as $field_name => $field) {
+    if (
+      strpos($field_name, "{$entity_machine_name}-{$bundle_machine_name}") !== FALSE
+    	&& (count($fields_name) == 0 || in_array($field_name, $fields_name))
+    )
+    {
+      $fields[$field_name] = $field;
+    }
+  }
+  
+  if (count($fields) == 0) {
+    return;
+  }
+
+  field_info_cache_clear();
+  
+  // Load all the existing fields and instance up-front so that we don't
+  // have to rebuild the cache all the time.
+  $existing_fields = field_info_fields();
+  $existing_instances = field_info_instances();
+  
+  foreach ($fields as $field) {
+    // Create or update field.
+    $field_config = $field['field_config'];
+    if (isset($existing_fields[$field_config['field_name']])) {
+      $existing_field = $existing_fields[$field_config['field_name']];
+      if ($field_config + $existing_field != $existing_field) {
+        field_update_field($field_config);
+      }
+    }
+    else {
+      field_create_field($field_config);
+      $existing_fields[$field_config['field_name']] = $field_config;
+    }
+  
+    // Create or update field instance.
+    $field_instance = $field['field_instance'];
+    if (isset($existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']])) {
+      $existing_instance = $existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']];
+      if ($field_instance + $existing_instance != $existing_instance) {
+        field_update_instance($field_instance);
+      }
+    }
+    else {
+      field_create_instance($field_instance);
+      $existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']] = $field_instance;
+    }
+  }
+  
+  if ($fields) {
+    variable_set('menu_rebuild_needed', TRUE);
+  }
 }

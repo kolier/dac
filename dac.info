@@ -2,23 +2,12 @@ name = Data and Chart
 description = Data and Chart system.
 core = 7.x
 package = Data and Chart
-php = 5.2.4
 version = 7.x-1.0-dev
 project = dac
+
 dependencies[] = eck
 dependencies[] = eck_extras
 dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = options
 dependencies[] = sheetnode
-explanation = Field type(s) in use - see <a href="/admin/reports/fields">Field list</a>
-features[eck_bundle][] = chart_gct
-features[eck_bundle][] = data_sheet
-features[eck_entity_type][] = chart
-features[eck_entity_type][] = data
-features[features_api][] = api:1
-features[field][] = chart-gct-field_chart_data
-features[field][] = chart-gct-field_chart_options
-features[field][] = chart-gct-field_chart_type
-features[field][] = data-sheet-field_data_sheet
-required = 1

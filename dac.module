@@ -283,7 +283,7 @@ function dac_chart_options_parse($chart_options) {
 /**
  * Prepare the chart settings.
  */
-function dac_chart_settings($entity, $langcode) {
+function dac_chart_settings($entity) {
   global $base_url;
   $data = entity_load_single('data', $entity->field_chart_data[LANGUAGE_NONE][0]['target_id']);
   $data_uri = $data->uri();

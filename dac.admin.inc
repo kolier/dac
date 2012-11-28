@@ -5,6 +5,13 @@
  * Admin configuration form of dac.
  */
 
+/**
+ * Used to enable/disable entity. @todo Not functioned.
+ * 
+ * @param array $form
+ * @param array $form_state
+ * @return array $form
+ */
 function dac_admin_config($form, &$form_state) {
   $dac_enable = variable_get('dac_enable', array('data' => array(), 'chart' => array()));
   
@@ -30,6 +37,9 @@ function dac_admin_config($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Submit function for dac_admin_config().
+ */
 function dac_admin_config_submit($form, &$form_state) {
   $dac_enable = array(
     'data' => $form_state['values']['data'],

@@ -4,8 +4,6 @@
  * Code for the Data and Chart feature module.
  */
 
-include_once 'dac.features.inc';
-
 /**
  * Implements hook_menu().
  */
@@ -347,6 +345,7 @@ function dac_entity_build($entity_machine_name, $bundle_machine_name) {
 
 /**
  * Add the eck entity.
+ * 
  * @param string $entity_machine_name
  */
 function dac_eck_entity_build($entity_machine_name) {
@@ -383,6 +382,7 @@ function dac_eck_entity_build($entity_machine_name) {
 
 /**
  * Add an eck bundle to an eck entity.
+ * 
  * @param string $entity_machine_name
  * @param string $bundle_machine_name
  */
@@ -418,6 +418,7 @@ function dac_eck_bundle_build($entity_machine_name, $bundle_machine_name) {
 
 /**
  * Build the fields of the bundle of entity.
+ * 
  * @param string $entity_machine_name
  * @param string $bundle_machine_name
  * @param array $fields_name
